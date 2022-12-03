@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  
+  userstoredb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    
+
+
+  useridentitystore.api:
+    image: ${DOCKER_REGISTRY-}useridentitystoreapi
+    build:
+      context: .
+      dockerfile: src/UserIdentityStore/UserIdentityStore.API/Dockerfile
+
+volumes:
+  uservolume:
