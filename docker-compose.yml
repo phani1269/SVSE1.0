@@ -5,6 +5,8 @@ services:
   userstoredb:
     image: mcr.microsoft.com/mssql/server:2017-latest
     
+  complaintdb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
 
 
   useridentitystore.api:
@@ -15,3 +17,4 @@ services:
 
 volumes:
   uservolume:
+  complaintvolume:

@@ -37,7 +37,7 @@ namespace UserIdentityStore.API.Repositories
             AppUser user = new AppUser()
             {
                 Email = model.Email,
-                CreatedAt = DateTime.Now.ToString("dd/MMMM/yyyy hh:mm:ss"),
+                CreatedAt = DateTime.Now.ToLocalTime().ToString(),
                 UserName = model.UserName,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -99,20 +99,21 @@ namespace UserIdentityStore.API.Repositories
                 };
                 foreach (var userrolw in userRole)
                 {
-                    authClaims.Add(new Claim("Role", userrolw));
+                    authClaims.Add(new Claim("role", userrolw));
                 }
                 var authSignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Sign"]));
                 var token = new JwtSecurityToken(
                             issuer: _configuration["JWT:ValidIssuer"],
                             audience: _configuration["JWT:ValidAudience"],
-                            expires: DateTime.Now.AddMinutes(15),
+                            expires: DateTime.Now.AddMinutes(5),
                             claims: authClaims,
                              signingCredentials: new SigningCredentials(authSignKey, SecurityAlgorithms.HmacSha256)
                              );
                 return new AuthResult
                 {
                     Result = true,
-                    Token = new JwtSecurityTokenHandler().WriteToken(token)
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    Expires = token.ValidTo.ToLocalTime().ToLongTimeString()
                 };
             }
             return new AuthResult
@@ -140,7 +141,7 @@ namespace UserIdentityStore.API.Repositories
             AppUser user = new AppUser()
             {
                 Email = model.Email,
-                CreatedAt = DateTime.Now.ToString("dd/MMMM/yyyy hh:mm:ss"),
+                CreatedAt = DateTime.Now.ToLocalTime().ToString(),
                 UserName = model.UserName,
                 FirstName = model.FirstName,
                 LastName = model.LastName,

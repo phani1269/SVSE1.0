@@ -7,9 +7,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A50C9021-673
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserIdentityStore", "UserIdentityStore", "{CF80F718-4EE9-497E-87E0-AFB79815BED7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserIdentityStore.API", "src\UserIdentityStore\UserIdentityStore.API\UserIdentityStore.API.csproj", "{8A54DE5F-9FA2-4E8B-A7C1-8709A91F3352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserIdentityStore.API", "src\UserIdentityStore\UserIdentityStore.API\UserIdentityStore.API.csproj", "{8A54DE5F-9FA2-4E8B-A7C1-8709A91F3352}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E37114BF-1EDD-49F9-90F6-98F77590C854}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{4AA0711A-865F-467D-8AF0-05E78BE4DFBB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ComplaintService", "ComplaintService", "{6E29D33D-40CE-439E-B348-425A28D2EF7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComplaintService.API", "src\Services\ComplaintService\ComplaintService.API\ComplaintService.API.csproj", "{4259DB54-7F2D-4108-B217-60A050F26389}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +31,10 @@ Global
 		{E37114BF-1EDD-49F9-90F6-98F77590C854}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E37114BF-1EDD-49F9-90F6-98F77590C854}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E37114BF-1EDD-49F9-90F6-98F77590C854}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4259DB54-7F2D-4108-B217-60A050F26389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4259DB54-7F2D-4108-B217-60A050F26389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4259DB54-7F2D-4108-B217-60A050F26389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4259DB54-7F2D-4108-B217-60A050F26389}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +42,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{CF80F718-4EE9-497E-87E0-AFB79815BED7} = {A50C9021-673F-410F-A62C-BA49E480A3C4}
 		{8A54DE5F-9FA2-4E8B-A7C1-8709A91F3352} = {CF80F718-4EE9-497E-87E0-AFB79815BED7}
+		{4AA0711A-865F-467D-8AF0-05E78BE4DFBB} = {A50C9021-673F-410F-A62C-BA49E480A3C4}
+		{6E29D33D-40CE-439E-B348-425A28D2EF7E} = {4AA0711A-865F-467D-8AF0-05E78BE4DFBB}
+		{4259DB54-7F2D-4108-B217-60A050F26389} = {6E29D33D-40CE-439E-B348-425A28D2EF7E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6F9FC9B0-51E1-4B72-B4FF-0B3A4A8C195E}
