@@ -8,6 +8,13 @@ services:
   complaintdb:
     image: mcr.microsoft.com/mssql/server:2017-latest
 
+  productdb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+
+
 
   useridentitystore.api:
     image: ${DOCKER_REGISTRY-}useridentitystoreapi
@@ -18,3 +25,5 @@ services:
 volumes:
   uservolume:
   complaintvolume:
+  productvolume: 
+  ordervolume:

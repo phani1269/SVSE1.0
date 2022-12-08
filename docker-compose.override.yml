@@ -24,6 +24,29 @@ services:
     volumes:
       - complaintvolume:/var/opt/mssql/data
 
+  productdb:
+    container_name: productdb
+    environment:
+        MSSQL_SA_PASSWORD: "SVSEpwd2"
+        ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+        - "1432:1433"
+    volumes:
+      - productvolume:/var/opt/mssql/data
+
+  orderdb:
+    container_name: orderdb
+    environment:
+        MSSQL_SA_PASSWORD: "SVSEpwd2"
+        ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+        - "1433:1433"
+    volumes:
+      - ordervolume:/var/opt/mssql/data
+
+
   useridentitystore.api:
     container_name: useridentitystore.api
     environment:
