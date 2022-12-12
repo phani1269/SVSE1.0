@@ -14,6 +14,8 @@ namespace ProductService.API.MappingProfile
             CreateMap<GetProductDTO, Products>().ReverseMap();
             CreateMap<UpdateProductDTO, Products>().ReverseMap();
             CreateMap<UpdateCategoryDTO, CategoriesModel>().ReverseMap();
+            CreateMap<GetProductItemDTO, ProductItemsModel>().ReverseMap();
+            CreateMap<ProductItemDTO, ProductItemsModel>().ReverseMap();
 
         }
     }
