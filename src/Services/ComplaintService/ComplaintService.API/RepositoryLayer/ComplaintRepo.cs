@@ -1,5 +1,6 @@
 ﻿using ComplaintService.API.DataLayer.Contexts;
 using ComplaintService.API.DataLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ComplaintService.API.RepositoryLayer
 {
@@ -12,29 +13,49 @@ namespace ComplaintService.API.RepositoryLayer
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public Task<ComplaintModel> CreateComplaint(ComplaintModel model)
+        public async Task<ComplaintModel> CreateComplaint(ComplaintModel model)
         {
-            throw new NotImplementedException();
+            var objs = await _context.complaints.AddAsync(model);
+            await _context.SaveChangesAsync();
+            return objs.Entity;
         }
 
-        public Task<bool> DeleteComplaint(string userName)
+        public async Task<bool> DeleteComplaint(string userName)
         {
-            throw new NotImplementedException();
+            var con = await _context.complaints.FirstOrDefaultAsync(x => x.UserName == userName);
+            if(con == null) return false;
+            _context.complaints.Remove(con);
+            await _context.SaveChangesAsync();
+            return true;
+            
         }
 
-        public Task<IEnumerable<ComplaintModel>> GetAllComplaints()
+        public async Task<IEnumerable<ComplaintModel>> GetAllComplaints()
         {
-            throw new NotImplementedException();
+            var obj = await _context.complaints.ToListAsync();
+            return obj;
         }
 
-        public Task<ComplaintModel> GetComplaintByUsername(string userName)
+        public async Task<ComplaintModel> GetComplaintByUsername(string userName)
         {
-            throw new NotImplementedException();
+            var res =await _context.complaints.FirstOrDefaultAsync(x => x.UserName == userName);
+            if(res == null) return null;
+            return res; 
         }
 
-        public Task<bool> UpdateComplaint(string userName)
+       /* public async Task<bool> UpdateComplaint(string username)
         {
-            throw new NotImplementedException();
-        }
+            var a = await _context.complaints.FirstOrDefaultAsync(x => x.UserName == username);
+            if(a == null) return false;
+            
+            a.Description = Description;
+            a.MobileNumber = .MobileNumber;
+            a.ImageUrl = .ImageUrl;
+           
+
+            await _context.SaveChangesAsync();
+            return true;
+
+        }*/
     }
 }

@@ -283,11 +283,11 @@ namespace ProductService.API.BusinessLayer
             return _response;
         }
 
-        public async Task<ResponseModel> UpdateCategory(AddCategoryDTO category)
+        public async Task<ResponseModel> UpdateCategory(UpdateCategoryDTO category,int id)
         {
             try
             {
-               _response = await _productRepos.UpdateCategory(_mapper.Map<CategoriesModel>(category));
+               _response = await _productRepos.UpdateCategory(_mapper.Map<CategoriesModel>(category),id);
             }
             catch (Exception ex)
             {
@@ -305,11 +305,11 @@ namespace ProductService.API.BusinessLayer
             return _response;
         }
 
-        public async Task<ResponseModel> UpdateProduct(AddProductDTO product)
+        public async Task<ResponseModel> UpdateProduct(UpdateProductDTO product,int id)
         {
             try
             {
-                _response = await _productRepos.UpdateProduct(_mapper.Map<Products>(product));
+                _response = await _productRepos.UpdateProduct(_mapper.Map<Products>(product),id);
 
             }
             catch (Exception ex)
@@ -426,6 +426,28 @@ namespace ProductService.API.BusinessLayer
                     ProductItem = productItem
                 };
                 _response.Result = itemDTO;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> DeleteProductItems(List<AddProductItemsDTO> itemsList)
+        {
+            try
+            {
+                _response = await _productRepos.DeleteProductItems(itemsList);
             }
             catch (Exception ex)
             {

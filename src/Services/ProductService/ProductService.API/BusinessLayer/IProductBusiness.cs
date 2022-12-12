@@ -16,9 +16,11 @@ namespace ProductService.API.BusinessLayer
         Task<ResponseModel> AddProduct(AddProductDTO product);
         Task<ResponseModel> AddProductItems(List<AddProductItemsDTO> productItems, int productId);
         Task<ResponseModel> AddCategory(AddCategoryDTO category);
-        Task<ResponseModel> UpdateProduct(AddProductDTO product);
-        Task<ResponseModel> UpdateCategory(AddCategoryDTO category);
+        Task<ResponseModel> UpdateProduct(UpdateProductDTO product,int id);
+        Task<ResponseModel> UpdateCategory(UpdateCategoryDTO category,int id);
         Task<ResponseModel> DeleteProduct(int id);
         Task<ResponseModel> DeleteCategory(int id);
+        Task<ResponseModel> DeleteProductItems(List<AddProductItemsDTO> itemsList);
+
     }
 }

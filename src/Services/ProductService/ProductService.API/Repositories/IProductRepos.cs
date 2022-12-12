@@ -16,10 +16,11 @@ namespace ProductService.API.Repositories
         Task<ResponseModel> AddProduct(AddProductDTO product);
         Task<ResponseModel> AddProductItems(List<AddProductItemsDTO> productItems,int productId);
         Task<ResponseModel> AddCategory(CategoriesModel category);
-        Task<ResponseModel> UpdateProduct(Products product);
-        Task<ResponseModel> UpdateCategory(CategoriesModel category);
+        Task<ResponseModel> UpdateProduct(Products product, int id  );
+        Task<ResponseModel> UpdateCategory(CategoriesModel category, int id );
         Task<ResponseModel> DeleteProduct(int id);
         Task<ResponseModel> DeleteCategory(int id);
+        Task<ResponseModel> DeleteProductItems(List<AddProductItemsDTO> itemsList);
 
   
 

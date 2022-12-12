@@ -49,8 +49,16 @@ namespace ProductService.API.Repositories
         {
             try
             {
-                
                 var newProduct = _mapper.Map<Products>(product);
+
+                bool productExists = await _context.Products.AnyAsync(x => x.ProductCode == newProduct.ProductCode || x.ProductName == newProduct.ProductName);
+                if (productExists)
+                {
+                    _response.IsSuccess = false;
+                    _response.DisplayMessage = "Product Already exist";
+                    return _response;
+                }
+
                 if (product.ItemCodes.Any())
                 {
                     newProduct.Quantity = product.ItemCodes.Count;
@@ -81,10 +89,11 @@ namespace ProductService.API.Repositories
                 }
                 var itemsList = await _context.ProductItems.Where(i => i.ProductId == productModel.Entity.ProductId).ToListAsync();
 
-                var result = _mapper.Map<GetProductDTO>(productModel.Entity);
-                result.ProductItems = _mapper.Map<List<ProductItemDTO>>(itemsList);
+                /*var result = _mapper.Map<GetProductDTO>(productModel.Entity);
+                result.ProductItems = _mapper.Map<List<ProductItemDTO>>(itemsList);*/
 
-                _response.Result = result;
+                _response.IsSuccess = true;
+                _response.DisplayMessage = $"Product is added into database with Id:{productModel.Entity.ProductId}";
 
             }
             catch (Exception ex)
@@ -136,6 +145,10 @@ namespace ProductService.API.Repositories
                     _response.DisplayMessage = $"No Product is present with  Id:{id}";
                     return _response;
                 }
+                var itemList = await _context.ProductItems.Where(x => x.ProductId == productModel.ProductId).ToListAsync();
+                _context.ProductItems.RemoveRange(itemList);
+                await _context.SaveChangesAsync();
+
                 _context.Products.Remove(productModel);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"record with id:{id} is deleted from Products");
@@ -334,29 +347,26 @@ namespace ProductService.API.Repositories
 
         }
 
-        public async Task<ResponseModel> UpdateCategory(CategoriesModel category)
+        public async Task<ResponseModel> UpdateCategory(CategoriesModel category,int id)
         {
             try
             {
-                var categoryModel = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == category.CategoryId);
+                var categoryModel = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == id);
                 if (categoryModel == null)
                 {
                     _response.IsSuccess = false;
                     _response.DisplayMessage = $"No Category is present with Id:{category.CategoryId}";
                     return _response;
                 }
-                var newCategory = new CategoriesModel
-                {
-                    CategoryId = category.CategoryId,
-                    CategoryName = category.CategoryName,
-                    SubCategory = category.SubCategory,
-                    ModifiedBy= category.ModifiedBy,
-                    ModifiedAt = DateTime.Now
-                };
-                _context.Categories.Update(newCategory);
+
+                categoryModel.CategoryName = category.CategoryName;
+                categoryModel.SubCategory = category.SubCategory;
+                categoryModel.ModifiedBy = category.ModifiedBy;
+                categoryModel.ModifiedAt = DateTime.Now;
+               
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Category with Id:{category.CategoryId} is updated");
-                _response.DisplayMessage = $"Category with Id:{category.CategoryId} is updated";
+                _logger.LogInformation($"Category with Id:{id} is updated");
+                _response.DisplayMessage = $"Category with Id:{id} is updated";
             }
             catch (Exception ex)
             {
@@ -369,33 +379,31 @@ namespace ProductService.API.Repositories
             return _response;
         }
 
-        public async Task<ResponseModel> UpdateProduct(Products product)
+        public async Task<ResponseModel> UpdateProduct(Products product,int id)
         {
             try
             {
-                var productModel = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == product.ProductId);
+                var productModel = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == id);
                 if (productModel==null)
                 {
                     _response.IsSuccess = false;
                     _response.DisplayMessage = $"No Product is present with Id:{product.ProductId}";
                     return _response;
                 }
-                var newProduct = new Products
-                {
-                    ProductId = product.ProductId,
-                    CapacityRating = product.CapacityRating,
-                    CostPrice = product.CostPrice,
-                    ProductCode = product.ProductCode,
-                    ProductName = product.ProductName,
-                    RetailPrice = product.RetailPrice,
-                    Warranty = product.Warranty,
-                    ModifiedAt = DateTime.Now,
-                    ModifiedBy = product.ModifiedBy
-                };
-                _context.Products.Update(newProduct);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"Product with Id:{product.ProductId} is updated");
-                _response.DisplayMessage = $"Product with Id:{product.ProductId} is updated";
+
+                productModel.CapacityRating = product.CapacityRating;
+                productModel.CostPrice = product.CostPrice;
+                productModel.ProductCode = product.ProductCode;
+                productModel.ProductName = product.ProductName;
+                productModel.RetailPrice = product.RetailPrice;
+                productModel.Warranty = product.Warranty;
+                productModel.ModifiedAt = DateTime.Now;
+                productModel.ModifiedBy = product.ModifiedBy;
+                productModel.CategoryId = product.CategoryId;
+               
+                    await _context.SaveChangesAsync();
+                _logger.LogInformation($"Product with Id:{id} is updated");
+                _response.DisplayMessage = $"Product with Id:{id} is updated";
             }
             catch (Exception ex)
             {
@@ -494,6 +502,40 @@ namespace ProductService.API.Repositories
             try
             {
                 _response.Result = await _context.ProductItems.FirstOrDefaultAsync(x => x.ItemCode == itemCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> DeleteProductItems(List<AddProductItemsDTO> itemsList)
+        {
+            try
+            {
+                int productId = 0;
+                foreach (var item in itemsList)
+                {
+                    var productItem = await _context.ProductItems.FirstOrDefaultAsync(x => x.ItemCode == item.ItemCode);
+                    productId = productItem.ProductId;
+                    _context.ProductItems.Remove(productItem);
+                    await _context.SaveChangesAsync();
+
+                    var product = await _context.Products.Where(x => x.ProductId == productId).ToListAsync();
+                    foreach (var data in product)
+                    {
+                        data.Quantity--;
+                        await _context.SaveChangesAsync();
+                    }
+                    _response.IsSuccess = true;
+                    _response.DisplayMessage = "Items are removed from database";
+
+                }
             }
             catch (Exception ex)
             {

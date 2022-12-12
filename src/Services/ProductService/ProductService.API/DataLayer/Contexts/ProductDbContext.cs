@@ -16,14 +16,12 @@ namespace ProductService.API.DataLayer.Contexts
         {
             // Configure entity and its properties using Fluent API
 
-            modelBuilder.Entity<CategoriesModel>()
-                .HasAlternateKey("CategoryName")
-                .HasName("uq_CategoryName");
+           
            
             modelBuilder.Entity<Products>(entity =>
             {
-                entity.HasAlternateKey(e => e.ProductName)
-                      .HasName("uq_ProductName");
+                //entity.HasAlternateKey(e => e.ProductName)
+                      //.HasName("uq_ProductName");
 
                 entity.HasOne(c => c.Categories)
                         .WithMany()

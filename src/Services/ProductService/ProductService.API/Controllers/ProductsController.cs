@@ -69,6 +69,17 @@ namespace ProductService.API.Controllers
             }
             return BadRequest();
         }
+        [HttpDelete]
+        [Route("[action]")]
+        public async Task<IActionResult> DeleteProductItems(List<AddProductItemsDTO> itemsDTOs)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _productBusiness.DeleteProductItems(itemsDTOs);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> GetAllCategories()
@@ -126,22 +137,22 @@ namespace ProductService.API.Controllers
         }
         [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> UpdateCategory(AddCategoryDTO addCategory)
+        public async Task<IActionResult> UpdateCategory(UpdateCategoryDTO addCategory,int id)
         {
             if (ModelState.IsValid)
             {
-                var result = await _productBusiness.UpdateCategory(addCategory);
+                var result = await _productBusiness.UpdateCategory(addCategory,id);
                 return Ok(result);
             }
             return BadRequest();
         }
         [HttpPut]
         [Route("[action]/{id}")]
-        public async Task<IActionResult> UpdateProduct(AddProductDTO addProduct)
+        public async Task<IActionResult> UpdateProduct(UpdateProductDTO addProduct,int id)
         {
             if (ModelState.IsValid)
             {
-                var result = await _productBusiness.UpdateProduct(addProduct);
+                var result = await _productBusiness.UpdateProduct(addProduct,id);
                 return Ok(result);
             }
             return BadRequest();

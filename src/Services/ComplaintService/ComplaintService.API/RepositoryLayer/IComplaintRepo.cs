@@ -7,7 +7,7 @@ namespace ComplaintService.API.RepositoryLayer
         Task<ComplaintModel> CreateComplaint(ComplaintModel model);
         Task<IEnumerable<ComplaintModel>> GetAllComplaints();
         Task<ComplaintModel> GetComplaintByUsername(string userName);
-        Task<bool> UpdateComplaint(string userName);
+        //Task<bool> UpdateComplaint(string userName);
         Task<bool> DeleteComplaint(string userName);
     }
 }
