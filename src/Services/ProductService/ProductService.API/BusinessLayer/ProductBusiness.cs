@@ -147,7 +147,7 @@ namespace ProductService.API.BusinessLayer
                 var result = _mapper.Map<List<GetProductDTO>>(_response.Result);
                 foreach (var item in result)
                 {
-                    var prodItems = GetProductItemsById(item.ProductId);
+                    var prodItems = await GetProductItemsById(item.ProductId);
                     item.ProductItems = _mapper.Map<List<ProductItemDTO>>(prodItems.Result);
                 }
                 _response.Result = result;
@@ -204,7 +204,7 @@ namespace ProductService.API.BusinessLayer
                 newProduct.CategoryName = categoryModel.CategoryName;
                 newProduct.SubCategory = categoryModel.SubCategory;
 
-                var prodItems = GetProductItemsById(id);
+                var prodItems = await GetProductItemsById(id);
                 var productItems = _mapper.Map<List<ProductItemDTO>>(prodItems.Result);
 
                 newProduct.ProductItems = productItems;
@@ -238,6 +238,7 @@ namespace ProductService.API.BusinessLayer
 
                 var result = new GetProductsByCatandSubDTO();
                 var productList = new ProductsList();
+                List<ProductsList> newProductList = new();
 
                 foreach (var item in productsResponse)
                 {
@@ -261,8 +262,8 @@ namespace ProductService.API.BusinessLayer
 
                     productList.ProductItems = productItemsModel;
 
-
-                    result.ProductsList.Add(productList);
+                    newProductList.Add(productList);
+                    result.ProductsList = newProductList;
                 }
                 _response.Result = result;
 
