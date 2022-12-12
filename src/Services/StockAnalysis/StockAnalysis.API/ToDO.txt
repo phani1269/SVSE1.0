@@ -1,0 +1,15 @@
+﻿1. Use HttpClient to get services from productAPI and orderAPI
+
+2.UpdateProduct (Product.API) to update quantity by getting GetOrdersbyItemCode(Order.API)
+
+3. Today Sales ==> by GetOrdersbyDate(Order.API)
+
+4. Recent Orders ==> GetOrders by desc order (Order.API)
+
+5. present stock ==> product Quantity of every product(product.API)
+
+6. Sales by catgory and subcategory ==> getOrderbyItemcode(Order.API) and getAllProducts(Product.API)
+
+7. Profit ==> by DP of product and  ItemAmount from orderedItem.
+ 
+

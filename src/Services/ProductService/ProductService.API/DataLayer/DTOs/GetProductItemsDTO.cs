@@ -1,8 +1,16 @@
-﻿namespace ProductService.API.DataLayer.DTOs
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace ProductService.API.DataLayer.DTOs
 {
-    public class GetProductDTO
+    public class GetProductItemDTO
     {
+        public int ItemsId { get; set; }
+        public string? ItemCode { get; set; }
         public int ProductId { get; set; }
+    }
+    public class ProductDTO
+    {
         public string? ProductName { get; set; }
         public string? ProductCode { get; set; }
         public int CapacityRating { get; set; }
@@ -14,12 +22,13 @@
         public string? SubCategory { get; set; }
         public string HSNcode { get; set; }
 
-        public List<ProductItemDTO> ProductItems { get; set; }
+    }
 
-    }
-    public class ProductItemDTO
+    public class ItemDTO
     {
-        public int ItemsId { get; set; }
-        public string? ItemCode { get; set; }
+        public GetProductItemDTO ProductItem { get; set; }
+        public ProductDTO product { get; set; }
     }
+
+
 }

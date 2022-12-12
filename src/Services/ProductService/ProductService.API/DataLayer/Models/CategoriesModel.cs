@@ -16,6 +16,8 @@ namespace ProductService.API.DataLayer.Models
         [Required]
         [MaxLength(20)]
         public string SubCategory { get; set; }
+        public string HSNcode { get; set; }
+
         public  ICollection<Products> Products { get; set; }
     }
 }

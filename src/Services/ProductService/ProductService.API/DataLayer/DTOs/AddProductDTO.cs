@@ -10,6 +10,6 @@
         public string? Warranty { get; set; }
         public int CategoryId { get; set; }
         public string? ModifiedBy { get; set; }
-
+        public List<string> ItemCodes { get; set; }
     }
 }

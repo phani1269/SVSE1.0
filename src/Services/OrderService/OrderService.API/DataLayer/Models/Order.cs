@@ -17,18 +17,10 @@ namespace OrderService.API.DataLayer.Models
         [Required]
         public string? PhoneNumber { get; set; }
         [Required]
-        public decimal PayableAmount
-        {
-            get
-            {
-                decimal total = 0;
-                foreach (var item in OrderedItemsList)
-                {
-                    total += item.TotalAmount;
-                }
-                return total;
-            }
-        }
+        public string? GSTNumber { get; set; }
+        [Required]
+        public string? VehicleNumber { get; set; }    
+        public decimal PayableAmount { get; set; }    
         public bool PaymentConfirmation { get; set; } = false;
         public ICollection<OrderedItems> OrderedItemsList { get; set; }  
     }

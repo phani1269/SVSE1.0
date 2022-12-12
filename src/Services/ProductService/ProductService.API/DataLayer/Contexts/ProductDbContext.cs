@@ -10,6 +10,7 @@ namespace ProductService.API.DataLayer.Contexts
         }
         public DbSet<Products> Products { get; set; }
         public DbSet<CategoriesModel> Categories { get; set; }
+        public DbSet<ProductItemsModel> ProductItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

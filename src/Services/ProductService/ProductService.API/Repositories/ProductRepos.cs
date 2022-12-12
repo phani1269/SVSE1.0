@@ -6,6 +6,7 @@ using ProductService.API.DataLayer.Models;
 
 namespace ProductService.API.Repositories
 {
+    
     public class ProductRepos : IProductRepos
     {
         private readonly ProductDbContext _context;
@@ -44,16 +45,46 @@ namespace ProductService.API.Repositories
 
         }
 
-        public async Task<ResponseModel> AddProduct(Products product)
+        public async Task<ResponseModel> AddProduct(AddProductDTO product)
         {
             try
             {
-                product.CreatedAt = DateTime.Now;
-                product.ModifiedAt = DateTime.Now;
-                var productModel = await _context.Products.AddAsync(product);
+                
+                var newProduct = _mapper.Map<Products>(product);
+                if (product.ItemCodes.Any())
+                {
+                    newProduct.Quantity = product.ItemCodes.Count;
+                }
+                else
+                {
+                    newProduct.Quantity = 0;
+                }
+
+                newProduct.CreatedAt = DateTime.Now;
+                newProduct.ModifiedAt = DateTime.Now;
+                var productModel = await _context.Products.AddAsync(newProduct);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Record is saved into Database with Id:{productModel.Entity.ProductId}");
-                _response.Result = productModel.Entity;
+
+                if (product.ItemCodes.Any())
+                {
+                    foreach (var item in product.ItemCodes)
+                    {
+                        var productItem = new ProductItemsModel
+                        {
+                            ItemCode = item,
+                            ProductId = productModel.Entity.ProductId
+                        };
+                       await _context.ProductItems.AddAsync(productItem);
+                       await _context.SaveChangesAsync();
+                    }
+                }
+                var itemsList = await _context.ProductItems.Where(i => i.ProductId == productModel.Entity.ProductId).ToListAsync();
+
+                var result = _mapper.Map<GetProductDTO>(productModel.Entity);
+                result.ProductItems = _mapper.Map<List<ProductItemDTO>>(itemsList);
+
+                _response.Result = result;
 
             }
             catch (Exception ex)
@@ -159,6 +190,15 @@ namespace ProductService.API.Repositories
                 }
                 _logger.LogInformation("All Products from database are retrieved");
                 _response.Result = products;
+
+                /*foreach (var item in products)
+                {
+                    var newProduct = _mapper.Map<GetProductDTO>(item);
+                    var productItems = await _context.ProductItems.Where(x => x.ProductId == item.ProductId).ToListAsync();
+                    newProduct.ProductItems = _mapper.Map<List<GetProductItemsDTO>>(productItems);
+                    getProducts.Add(newProduct);
+                }
+                _response.Result = getProducts;*/
             }
             catch (Exception ex)
             {
@@ -207,8 +247,9 @@ namespace ProductService.API.Repositories
                     _response.DisplayMessage = $"No Product is Present with Id:{id}";
                     return _response;
                 }
-                var categoryModel = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == productModel.CategoryId);
-                var newProduct = new GetProductDTO
+               // var categoryModel = await _context.Categories.FirstOrDefaultAsync(x => x.CategoryId == productModel.CategoryId);
+               // var productItems = await _context.ProductItems.Where(x => x.ProductId == productModel.ProductId).ToListAsync();
+               /* var newProduct = new GetProductDTO
                 {
                     CapacityRating = productModel.CapacityRating,
                     CategoryId = productModel.CategoryId,
@@ -219,11 +260,12 @@ namespace ProductService.API.Repositories
                     ProductName = productModel.ProductName,
                     RetailPrice = productModel.RetailPrice,
                     SubCategory = categoryModel.SubCategory,
-                    Warranty = productModel.Warranty
-                };
+                    Warranty = productModel.Warranty,
+                 //   ProductItems = _mapper.Map<List<GetProductItemsDTO>>(productItems)
+            };*/
                 _logger.LogInformation($"Product with id:{id} is retrieved");
 
-                _response.Result = newProduct;
+                _response.Result = productModel;
             }
             catch (Exception ex)
             {
@@ -249,7 +291,9 @@ namespace ProductService.API.Repositories
                     return _response;
 
                 }
-                var products = await (from p in _context.Products
+                var products = await _context.Products.Where(x=>x.CategoryId==categoryModel.CategoryId).ToListAsync();
+
+                /*var products = await (from p in _context.Products
                                       join c in _context.Categories on p.Categories.CategoryId equals c.CategoryId
                                       where c.SubCategory == subcategory && c.CategoryName == category
                                       select new GetProductDTO
@@ -264,7 +308,7 @@ namespace ProductService.API.Repositories
                                           ProductName = p.ProductName,
                                           RetailPrice = p.RetailPrice,
                                           Warranty = p.Warranty
-                                      }).ToListAsync();
+                                      }).ToListAsync();*/
 
                 if (!products.Any())
                 {
@@ -275,7 +319,6 @@ namespace ProductService.API.Repositories
                 }
 
                 _logger.LogInformation($"Products with {category} and {subcategory} are retrieved ");
-                
                 _response.Result = products;
 
             }
@@ -353,6 +396,104 @@ namespace ProductService.API.Repositories
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Product with Id:{product.ProductId} is updated");
                 _response.DisplayMessage = $"Product with Id:{product.ProductId} is updated";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> AddProductItems(List<AddProductItemsDTO> productItems, int productId)
+        {
+            try
+            {
+                var productExists = _context.Products.Where(x => x.ProductId == productId).Any();
+                if (productExists)
+                {
+                    foreach (var item in productItems)
+                    {
+                        var newItem = new ProductItemsModel
+                        {
+                            ProductId = productId,
+                            ItemCode = item.ItemCode
+                        };
+                        await _context.ProductItems.AddAsync(newItem);
+                        await _context.SaveChangesAsync();
+                    }
+                    var itemsList = await _context.ProductItems.Where(x => x.ProductId == productId).ToListAsync();
+
+                    var product = await _context.Products.Where(x => x.ProductId == productId).ToListAsync();
+                    foreach (var item in product)
+                    {
+                        item.Quantity = itemsList.Count;
+                    }
+                    await _context.SaveChangesAsync();
+                    _response.Result = true; 
+                }
+                else
+                {
+                    _response.IsSuccess = false;
+                    _response.DisplayMessage = $"No Product is present with Id:{productId}";
+                    return _response;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetProductItemsById(int productId)
+        {
+            try
+            {
+                var productItems = await _context.ProductItems.Where(x => x.ProductId == productId).ToListAsync();
+                _response.Result = productItems;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetProductByProductCode(string productCode)
+        {
+            try
+            {
+                var productResponse = await _context.Products.FirstOrDefaultAsync(x => x.ProductCode == productCode);
+                _response.Result = productResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetProductItemsByItemCode(string itemCode)
+        {
+            try
+            {
+                _response.Result = await _context.ProductItems.FirstOrDefaultAsync(x => x.ItemCode == itemCode);
             }
             catch (Exception ex)
             {

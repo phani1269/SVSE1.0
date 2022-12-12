@@ -1,4 +1,5 @@
-﻿using ProductService.API.DataLayer.Models;
+﻿using ProductService.API.DataLayer.DTOs;
+using ProductService.API.DataLayer.Models;
 
 namespace ProductService.API.Repositories
 {
@@ -9,12 +10,19 @@ namespace ProductService.API.Repositories
         Task<ResponseModel> GetCategoriesById(int id);
         Task<ResponseModel> GetSelectedProduct(string category, string subcategory);
         Task<ResponseModel> GetProductById(int id);
-        Task<ResponseModel> AddProduct(Products product);
+        Task<ResponseModel> GetProductItemsById(int productId);
+        Task<ResponseModel> GetProductByProductCode(string productCode);
+        Task<ResponseModel> GetProductItemsByItemCode(string itemCode);
+        Task<ResponseModel> AddProduct(AddProductDTO product);
+        Task<ResponseModel> AddProductItems(List<AddProductItemsDTO> productItems,int productId);
         Task<ResponseModel> AddCategory(CategoriesModel category);
         Task<ResponseModel> UpdateProduct(Products product);
         Task<ResponseModel> UpdateCategory(CategoriesModel category);
         Task<ResponseModel> DeleteProduct(int id);
         Task<ResponseModel> DeleteCategory(int id);
+
+  
+
 
     }
 }

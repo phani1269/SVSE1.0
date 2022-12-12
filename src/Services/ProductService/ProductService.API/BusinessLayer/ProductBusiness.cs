@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ProductService.API.DataLayer.DTOs;
 using ProductService.API.DataLayer.Models;
 using ProductService.API.Repositories;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ProductService.API.BusinessLayer
 {
@@ -53,10 +49,10 @@ namespace ProductService.API.BusinessLayer
         {
             try
             {
-                var newProductModel = _mapper.Map<Products>(product);
-                _response = await _productRepos.AddProduct(newProductModel);
-                _response.Result = _mapper.Map<GetProductDTO>(_response.Result);
-                _logger.LogInformation("Mapping is done");
+              //  var newProductModel = _mapper.Map<Products>(product);
+                _response = await _productRepos.AddProduct(product);
+               // _response.Result = _mapper.Map<GetProductDTO>(_response.Result);
+               // _logger.LogInformation("Mapping is done");
             }
             catch (Exception ex)
             {
@@ -147,7 +143,14 @@ namespace ProductService.API.BusinessLayer
             try
             {
                 _response = await _productRepos.GetAllProducts();
-                _response.Result = _mapper.Map<IEnumerable<GetProductDTO>>(_response.Result);
+
+                var result = _mapper.Map<List<GetProductDTO>>(_response.Result);
+                foreach (var item in result)
+                {
+                    var prodItems = GetProductItemsById(item.ProductId);
+                    item.ProductItems = _mapper.Map<List<ProductItemDTO>>(prodItems.Result);
+                }
+                _response.Result = result;
 
             }
             catch (Exception ex)
@@ -195,6 +198,19 @@ namespace ProductService.API.BusinessLayer
             try
             {
                 _response = await _productRepos.GetProductById(id);
+                var newProduct = _mapper.Map<GetProductDTO>(_response.Result);
+                var categories =  await GetCategoriesById(newProduct.CategoryId);
+                var categoryModel = _mapper.Map<GetCategoryDTO>(categories.Result);
+                newProduct.CategoryName = categoryModel.CategoryName;
+                newProduct.SubCategory = categoryModel.SubCategory;
+
+                var prodItems = GetProductItemsById(id);
+                var productItems = _mapper.Map<List<ProductItemDTO>>(prodItems.Result);
+
+                newProduct.ProductItems = productItems;
+
+                _response.Result = newProduct;
+
             }
             catch (Exception ex)
             {
@@ -217,6 +233,39 @@ namespace ProductService.API.BusinessLayer
             try
             {
                 _response = await _productRepos.GetSelectedProduct(category, subcategory);
+
+                var productsResponse = _mapper.Map<List<Products>>(_response.Result);
+
+                var result = new GetProductsByCatandSubDTO();
+                var productList = new ProductsList();
+
+                foreach (var item in productsResponse)
+                {
+                    var categoryies = await GetCategoriesById(item.CategoryId);
+                    var categoryModel = _mapper.Map<GetCategoryDTO>(categoryies.Result);
+
+                    result.CategoryId = categoryModel.CategoryId;
+                    result.CategoryName = categoryModel.CategoryName;
+                    result.SubCategory = categoryModel.SubCategory;
+
+                    productList.ProductId = item.ProductId;
+                    productList.ProductName = item.ProductName;
+                    productList.ProductCode = item.ProductCode;
+                    productList.CapacityRating = item.CapacityRating;
+                    productList.CostPrice = item.CostPrice;
+                    productList.RetailPrice = item.RetailPrice;
+                    productList.Warranty = item.Warranty;
+
+                    var newitems = await GetProductItemsById(item.ProductId);
+                    var productItemsModel = _mapper.Map<List<ProductItemDTO>>(newitems.Result);
+
+                    productList.ProductItems = productItemsModel;
+
+
+                    result.ProductsList.Add(productList);
+                }
+                _response.Result = result;
+
             }
             catch (Exception ex)
             {
@@ -262,6 +311,121 @@ namespace ProductService.API.BusinessLayer
             {
                 _response = await _productRepos.UpdateProduct(_mapper.Map<Products>(product));
 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> AddProductItems(List<AddProductItemsDTO> productItems, int productId)
+        {
+            try
+            {
+                _response = await _productRepos.AddProductItems(productItems, productId);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetProductItemsById(int productId)
+        {
+            try
+            {
+                _response = await _productRepos.GetProductItemsById(productId);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetProductByProductCode(string productCode)
+        {
+            try
+            {
+                _response =  await _productRepos.GetProductByProductCode(productCode);
+                var product = _mapper.Map<GetProductDTO>(_response.Result);
+
+                var categories = await GetCategoriesById(product.CategoryId);
+                var catgeoryModel = _mapper.Map<GetCategoryDTO>(categories.Result);
+                product.CategoryName = catgeoryModel.CategoryName;
+                product.SubCategory = catgeoryModel.SubCategory;
+
+                var productresposne = await GetProductItemsById(product.ProductId);
+                var productModel = _mapper.Map<List<ProductItemDTO>>(productresposne.Result);
+
+                product.ProductItems = productModel;
+
+                _response.Result = product;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+ 
+        }
+
+        public async Task<ResponseModel> GetProductItemsByItemCode(string itemCode)
+        {
+            try
+            {
+                var productItemresponse = await _productRepos.GetProductItemsByItemCode(itemCode);
+                var productItem = _mapper.Map<GetProductItemDTO>(productItemresponse.Result);
+
+                var productresponse = await _productRepos.GetProductById(productItem.ProductId);
+                var existProduct = _mapper.Map<ProductDTO>(productresponse.Result);
+
+                ItemDTO itemDTO = new ItemDTO
+                {
+                    product = existProduct,
+                    ProductItem = productItem
+                };
+                _response.Result = itemDTO;
             }
             catch (Exception ex)
             {

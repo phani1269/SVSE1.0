@@ -5,6 +5,8 @@
         public string? CategoryName { get; set; }
         public string? SubCategory { get; set; }
         public string? ModifiedBy { get; set; }
+        public string HSNcode { get; set; }
+
 
     }
 }

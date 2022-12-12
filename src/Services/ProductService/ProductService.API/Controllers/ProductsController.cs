@@ -10,12 +10,10 @@ namespace ProductService.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductBusiness _productBusiness;
-
         public ProductsController(IProductBusiness productBusiness)
         {
             _productBusiness = productBusiness ?? throw new ArgumentNullException(nameof(productBusiness));
         }
-
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> AddCategory(AddCategoryDTO addCategory)
@@ -34,6 +32,17 @@ namespace ProductService.API.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _productBusiness.AddProduct(addProduct);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> AddProductItems(List<AddProductItemsDTO> productItems, int productId)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _productBusiness.AddProductItems(productItems,productId);
                 return Ok(result);
             }
             return BadRequest();
@@ -133,6 +142,42 @@ namespace ProductService.API.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _productBusiness.UpdateProduct(addProduct);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetProductItemsByProductId(int productId)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _productBusiness.GetProductItemsById(productId);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetProductByProductCode(string productCode)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _productBusiness.GetProductByProductCode(productCode);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetProductItemsByItemCode(string itemCode)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _productBusiness.GetProductItemsByItemCode(itemCode);
                 return Ok(result);
             }
             return BadRequest();

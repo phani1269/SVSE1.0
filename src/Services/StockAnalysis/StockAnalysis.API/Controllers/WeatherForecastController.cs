@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using OrderService.API.DataLayer.DTOs;
 
-namespace OrderService.API.Controllers
+namespace StockAnalysis.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -19,12 +18,16 @@ namespace OrderService.API.Controllers
             _logger = logger;
         }
 
-
-        [HttpPost]
-        public ActionResult CreateOrder(GetOrderDTO addOrder)
+        [HttpGet(Name = "GetWeatherForecast")]
+        public IEnumerable<WeatherForecast> Get()
         {
-            return Ok(addOrder);
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
         }
-        
     }
 }
