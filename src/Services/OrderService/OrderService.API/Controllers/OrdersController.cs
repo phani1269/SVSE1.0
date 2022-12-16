@@ -52,7 +52,7 @@ namespace OrderService.API.Controllers
         }
         [HttpPut]
         [Route("[action]")]
-        public async Task<IActionResult> UpdateOrder(AddOrderDTO updateOrder)
+        public async Task<IActionResult> UpdateOrder(updateOrderDTO updateOrder)
         {
             if (ModelState.IsValid)
             {
@@ -61,6 +61,27 @@ namespace OrderService.API.Controllers
             }
             return BadRequest();
         }
-
+        [HttpPut]
+        [Route("[action]")]
+        public async Task<IActionResult> UpdateOrderItems(UpdateItemsDTO updateOrderItems)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _orderBusiness.UpdateOrderedItems(updateOrderItems);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IActionResult> GetOrdersByItemCode(string itemCode)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _orderBusiness.GetOrdersbyItemCode(itemCode);
+                return Ok(result);
+            }
+            return BadRequest();
+        }
     }
 }

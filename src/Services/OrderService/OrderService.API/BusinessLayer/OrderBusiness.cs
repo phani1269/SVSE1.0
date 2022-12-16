@@ -94,6 +94,28 @@ namespace OrderService.API.BusinessLayer
             throw new NotImplementedException();
         }
 
+        public async Task<ResponseModel> GetOrderbyOrderId(int id)
+        {
+            try
+            {
+                _response = await _repository.GetOrderByOrderId(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
         public Task<ResponseModel> GetOrdersByCustomer(string customerName)
         {
             throw new NotImplementedException();
@@ -104,12 +126,59 @@ namespace OrderService.API.BusinessLayer
             throw new NotImplementedException();
         }
 
-        public Task<ResponseModel> GetOrdersbyItemCode(string itemcode)
+        private async Task<ResponseModel> OrderIdResponse(int id)
         {
-            throw new NotImplementedException();
+            _response = await _repository.GetOrderByOrderId(id);
+            return _response;
         }
 
-        public async Task<ResponseModel> UpdateOrder(AddOrderDTO updateOrder)
+        public async Task<ResponseModel> GetOrdersbyItemCode(string itemcode)
+        {
+            try
+            {
+                GetOrderDTO orderClass = new();
+                List<GetItemsDTO> getItemsDTOs= new List<GetItemsDTO>();
+
+                List<GetOrderDTO> itemcodeDTOs = new();
+
+                _response = await _repository.GetOrdersbyItemCode(itemcode);
+                
+                var mappedItemsList =  _mapper.Map<List<GetItemsDTO>>(_response.Result);
+                
+                foreach (var item in mappedItemsList)
+                {
+                    var itemOrder = await OrderIdResponse(item.OrderId);
+                    orderClass = _mapper.Map<GetOrderDTO>(itemOrder.Result);
+                    getItemsDTOs.Add(item);
+
+                    orderClass.OrderdItems = getItemsDTOs;
+                    itemcodeDTOs.Add(orderClass);
+                }
+                var newResult = new ItemCodeDTO
+                {
+                    ItemCode = itemcode,
+                    Orders = itemcodeDTOs
+                };
+                _response.Result = newResult;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> UpdateOrder(updateOrderDTO updateOrder)
         {
             try
             {
@@ -132,9 +201,27 @@ namespace OrderService.API.BusinessLayer
             return _response;
         }
 
-        public Task<ResponseModel> UpdateOrderedItems(AddItemsDTO updateItems)
+        public async Task<ResponseModel> UpdateOrderedItems(UpdateItemsDTO updateItems)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var mappedItems = _mapper.Map<OrderedItems>(updateItems);
+                _response = await _repository.UpdateOrderedItems(mappedItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.Result = null;
+                if (_response.ErrorMessages != null)
+                {
+                    _response.ErrorMessages.Add(ex.ToString());
+                }
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
         }
     }
 }

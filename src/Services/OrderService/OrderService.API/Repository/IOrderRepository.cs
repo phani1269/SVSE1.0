@@ -23,6 +23,7 @@ namespace OrderService.API.Repository
         Task<ResponseModel> GetOrdersbyDate(string date);
         // get orders by customer name
         Task<ResponseModel> GetOrdersByCustomer(string customerName);
+        Task<ResponseModel> GetOrderByOrderId(int id);
 
 
 

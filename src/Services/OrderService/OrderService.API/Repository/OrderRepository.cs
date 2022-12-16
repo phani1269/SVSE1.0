@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OrderService.API.DataLayer.Contexts;
 using OrderService.API.DataLayer.DTOs;
 using OrderService.API.DataLayer.Models;
@@ -11,12 +12,13 @@ namespace OrderService.API.Repository
         private readonly OrderDbContext _context;
         private readonly ILogger<OrderRepository> _logger;
         protected ResponseModel _response;
+        private readonly IMapper _mapper;
 
-
-        public OrderRepository(OrderDbContext context, ILogger<OrderRepository> logger)
+        public OrderRepository(OrderDbContext context, ILogger<OrderRepository> logger,IMapper mapper)
         {
             _context = context;
             _logger = logger;
+            _mapper = mapper;
             this._response = new ResponseModel();
         }
 
@@ -141,25 +143,48 @@ namespace OrderService.API.Repository
             throw new NotImplementedException();
         }
 
-        public Task<ResponseModel> GetOrdersbyItemCode(string itemcode)
+        public async Task<ResponseModel> GetOrdersbyItemCode(string itemcode)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existItems = await _context.orderedItems.Where(x => x.Itemcode == itemcode).ToListAsync();
+
+                _response.Result = existItems;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
         }
 
         public async Task<ResponseModel> UpdateOrder(Order updateOrder)
         {
             try
             {
-                bool orderExists = await _context.orders.AnyAsync(o => o.OrderId == updateOrder.OrderId);
+                var ExistOrder = await _context.orders.FirstOrDefaultAsync(o => o.OrderId == updateOrder.OrderId);
 
-                if (!orderExists)
+                if (ExistOrder == null)
                 {
                     _response.IsSuccess = false;
                     _response.DisplayMessage = $"Order with OrderId:{updateOrder.OrderId} is not present";
                     return _response;
                 }
 
-                _context.orders.Update(updateOrder);
+                ExistOrder.Address = updateOrder.Address;
+                ExistOrder.PhoneNumber = updateOrder.PhoneNumber;
+                ExistOrder.GSTNumber = updateOrder.GSTNumber;
+                ExistOrder.VehicleNumber = updateOrder.VehicleNumber;
+                ExistOrder.CustomerName = updateOrder.CustomerName;
+                ExistOrder.PaymentConfirmation = updateOrder.PaymentConfirmation;
+                ExistOrder.ModifiedAt = DateTime.Now;
+                ExistOrder.ModifiedBy = updateOrder.ModifiedBy;
+                ExistOrder.PayableAmount = updateOrder.PayableAmount;
+
                 await _context.SaveChangesAsync();
                 _response.IsSuccess = true;
                 _response.DisplayMessage = $"Order with Id:{updateOrder.OrderId} is updated";
@@ -175,9 +200,62 @@ namespace OrderService.API.Repository
             return _response;
         }
 
-        public Task<ResponseModel> UpdateOrderedItems(OrderedItems updateItems)
+        public async Task<ResponseModel> UpdateOrderedItems(OrderedItems updateItems)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var orderExist = await _context.orders.AnyAsync(x => x.OrderId == updateItems.OrderId);
+                if (!orderExist)
+                {
+                    _response.IsSuccess = false;
+                    _response.DisplayMessage = $"Order with OrderId:{updateItems.OrderId} is not present";
+                    return _response;
+                }
+
+                var ExistOrderItem = await _context.orderedItems.FirstOrDefaultAsync(x => x.ItemsId == updateItems.ItemsId);
+
+                ExistOrderItem.OrderedQuantity = updateItems.OrderedQuantity;
+                ExistOrderItem.SGST = updateItems.SGST;
+                ExistOrderItem.CGST = updateItems.CGST;
+                ExistOrderItem.ItemAmount = updateItems.ItemAmount;
+                ExistOrderItem.TotalAmount = updateItems.TotalAmount;
+                ExistOrderItem.Itemcode = updateItems.Itemcode;
+                ExistOrderItem.ModifiedBy = updateItems.ModifiedBy;
+                ExistOrderItem.ModifiedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                _response.IsSuccess = true;
+                _response.DisplayMessage = $"Item with Id:{updateItems.ItemsId} is updated";
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+        public async Task<ResponseModel> GetOrderByOrderId(int id)
+        {
+            try
+            {
+                _response.Result = await _context.orders.FirstOrDefaultAsync(x => x.OrderId == id);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception caught : {ex.Message}");
+                _response.IsSuccess = false;
+                _response.DisplayMessage = "Error";
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
         }
     }
 }

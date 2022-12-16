@@ -7,12 +7,13 @@ namespace OrderService.API.BusinessLayer
     {
         Task<ResponseModel> CreateOrder(AddOrderDTO addOrder);
         Task<ResponseModel> AddOrderedItems(List<AddItemsDTO> addItems);
-        Task<ResponseModel> UpdateOrder(AddOrderDTO updateOrder);
-        Task<ResponseModel> UpdateOrderedItems(AddItemsDTO updateItems);
+        Task<ResponseModel> UpdateOrder(updateOrderDTO updateOrder);
+        Task<ResponseModel> UpdateOrderedItems(UpdateItemsDTO updateItems);
         Task<ResponseModel> DeleteOrder(int id);
         Task<ResponseModel> GetOrdersbyItemCode(string itemcode);
         Task<ResponseModel> GetAllOrders();
         Task<ResponseModel> GetOrdersbyDate(string date);
         Task<ResponseModel> GetOrdersByCustomer(string customerName);
+        Task<ResponseModel> GetOrderbyOrderId(int id);
     }
 }

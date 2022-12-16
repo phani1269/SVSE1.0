@@ -12,6 +12,8 @@ namespace OrderService.API.MappingProfile
             CreateMap<AddItemsDTO,OrderedItems>().ReverseMap();
             CreateMap<GetOrderDTO, Order>().ReverseMap();
             CreateMap<GetItemsDTO, OrderedItems>().ReverseMap();
+            CreateMap<UpdateItemsDTO, OrderedItems>().ReverseMap();
+            CreateMap<updateOrderDTO, Order>().ReverseMap();
         }
     }
 }

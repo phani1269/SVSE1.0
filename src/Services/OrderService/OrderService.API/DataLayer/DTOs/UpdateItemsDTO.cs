@@ -1,30 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace OrderService.API.DataLayer.Models
+﻿namespace OrderService.API.DataLayer.DTOs
 {
-    public class OrderedItems:EntityBase
+    public class UpdateItemsDTO
     {
-        [Key]
         public int ItemsId { get; set; }
-        [Required]
         public string Itemcode { get; set; }
-        [Required]
         public decimal CGST { get; set; }
-        [Required]
         public decimal SGST { get; set; }
-        [Required]
         public int OrderedQuantity { get; set; }
-        [Required]
         public decimal ItemAmount { get; set; }
-        [Required]
         public decimal TaxableAmount { get; set; }
-
-        [Required]
         public decimal TotalAmount { get; set; }
-        [ForeignKey("OrderId")]
         public int OrderId { get; set; }
-        public Order Orders { get; set; }
+        public string? ModifiedBy { get; set; }
 
     }
 }

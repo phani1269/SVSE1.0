@@ -9,6 +9,8 @@ namespace OrderService.API.DataLayer.DTOs
         public string? PhoneNumber { get; set; }
         public string? GSTNumber { get; set; }
         public string? VehicleNumber { get; set; }
-      //  public List<AddItemsDTO> Items { get; set; }
+        public string? ModifiedBy { get; set; }
+
+        //  public List<AddItemsDTO> Items { get; set; }
     }
 }
